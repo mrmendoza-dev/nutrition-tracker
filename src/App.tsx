@@ -1,46 +1,67 @@
 import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import axios from "axios";
+import Barcode from "react-barcode";
 
 function App() {
 
   const [foodData, setFoodData] = useState([]);
  const [currentIndex, setCurrentIndex] = useState(0);
 
- const [food, setFood] = useState<any >(null);
+ const [food, setFood] = useState<any>(null);
  const [searchQuery, setSearchQuery] = useState("bread");
   const apiKey = "6l9dSatTP8apXFEXmPyRgPj7GARKd8tboQl16TSQ";
 
  const handleSubmit = async (event: any) => {
    event.preventDefault();
-   try {
-     const response = await axios.get(
-       `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${searchQuery}`
-     );
-     console.log(response);
-     const food = response.data.foods[0];
-    //  setFood(food);
-          setFoodData(response.data.foods);
 
-   } catch (error) {
-     console.error(error);
-   }
+   searchFood();
+
  };
 
 
  function nextItem() {
-  setCurrentIndex(prevVal => prevVal+1)
+
+  if (currentIndex === foodData.length-1) {
+  setCurrentIndex(0);
+
+  } else {
+  setCurrentIndex((prevVal) => prevVal + 1);
+
+  }
  }
   function previousItem() {
+      if (currentIndex === 0) {
+    setCurrentIndex(foodData.length-1);
+      } else {
     setCurrentIndex((prevVal) => prevVal - 1);
+      }
   }
  useEffect(() => {
    setFood(foodData[currentIndex]);
  }, [currentIndex]);
 
  useEffect(()=> {
-    setCurrentIndex(0);
+       setFood(foodData[0]);
  }, [foodData])
+
+  useEffect(() => {
+    searchFood();
+  }, []);
+
+
+  async function searchFood() {
+   try {
+     const response = await axios.get(
+       `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${apiKey}&query=${searchQuery}`
+     );
+     console.log(response);
+    //  const food = response.data.foods[0];
+     setFoodData(response.data.foods);
+   } catch (error) {
+     console.error(error);
+   }
+  }
 
  return (
    <div>
@@ -62,35 +83,37 @@ function App() {
      </div>
 
      <div className="flex">
-       <table className="foods-list">
-         <thead>
-           <tr>
-             <th style={{ width: "25%" }}>Description</th>
-             <th style={{ width: "25%" }}>Category</th>
-             <th style={{ width: "25%" }}>Brand Name</th>
-             <th style={{ width: "25%" }}>Brand Owner</th>
-           </tr>
-         </thead>
-         <tbody>
-           {foodData.map((foodItem: any, index) => {
-             return (
-               <tr
-                 key={foodItem.fdcId}
-                 className="food-row"
-                 onClick={() => {
-                   setCurrentIndex(index);
-                 }}
-               >
-                 <td>{foodItem.description}</td>
-                 <td>{foodItem.foodCategory}</td>
+       <div className="table-wrapper">
+         <table className="food-table">
+           <thead>
+             <tr>
+               <th style={{ width: "25%" }}>Description</th>
+               <th style={{ width: "25%" }}>Category</th>
+               <th style={{ width: "25%" }}>Brand Name</th>
+               <th style={{ width: "25%" }}>Brand Owner</th>
+             </tr>
+           </thead>
+           <tbody>
+             {foodData.map((foodItem: any, index) => {
+               return (
+                 <tr
+                   key={foodItem.fdcId}
+                   className="food-row"
+                   onClick={() => {
+                     setCurrentIndex(index);
+                   }}
+                 >
+                   <td>{foodItem.description}</td>
+                   <td>{foodItem.foodCategory}</td>
 
-                 <td>{foodItem.brandName}</td>
-                 <td>{foodItem.brandOwner}</td>
-               </tr>
-             );
-           })}
-         </tbody>
-       </table>
+                   <td>{foodItem.brandName}</td>
+                   <td>{foodItem.brandOwner}</td>
+                 </tr>
+               );
+             })}
+           </tbody>
+         </table>
+       </div>
 
        {food && (
          <div className="NutritionLabel">
@@ -126,6 +149,8 @@ function App() {
            </div>
 
            <div className="macro-nutrients">
+            <p className="">% Daily Value *</p>
+            
              <p>
                <strong>Protein</strong>
                {
@@ -173,6 +198,10 @@ function App() {
              of food contributes to a daily diet. 2,000 calories a day is used
              for general nutrition adivice
            </p>
+
+           <div className="barcode">
+             <Barcode value={food.fdcId} format="CODE128" />
+           </div>
          </div>
        )}
      </div>
