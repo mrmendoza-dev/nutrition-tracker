@@ -63,6 +63,11 @@ function App() {
    }
   }
 
+  function getFoodUrl(id: any) {
+    return`https://fdc.nal.usda.gov/fdc-app.html#/food-details/${id}/nutrients`;
+  }
+
+
  return (
    <div>
      <form onSubmit={handleSubmit}>
@@ -117,18 +122,22 @@ function App() {
 
        {food && (
          <div className="NutritionLabel">
-           <h2>{food.description}</h2>
+           <a href={getFoodUrl(food.fdcId)} target="_blank">
+             <h2>{food.description}</h2>
+           </a>
            <p>{food.foodCategory}</p>
 
-           <div className="">
+           <div className="brand">
              <p>{food.brandName}</p>
              <p>{food.brandOwner}</p>
            </div>
 
            <p className="title">Nutrition Facts</p>
 
+           <p className="">{food.packageWeight}</p>
+
            <div className="serving flex-between">
-             <p>Serving Size</p>
+             <p>Serving size</p>
              <p>
                {food.servingSize}
                {food.servingSizeUnit}
@@ -138,7 +147,7 @@ function App() {
              <p className="">Amount per serving</p>
              <div className="main flex-between">
                <p className="">Calories </p>
-               <p>
+               <p className="total">
                  {
                    food.foodNutrients.find(
                      (nutrient: any) => nutrient.nutrientName === "Energy"
@@ -149,8 +158,8 @@ function App() {
            </div>
 
            <div className="macro-nutrients">
-            <p className="">% Daily Value *</p>
-            
+             <p className="">% Daily Value *</p>
+
              <p>
                <strong>Protein</strong>
                {
@@ -177,6 +186,24 @@ function App() {
                  ).value
                }
              </p>
+             <p>
+               Saturated Fat
+               {
+                 food.foodNutrients.find(
+                   (nutrient: any) =>
+                     nutrient.nutrientName === "Carbohydrate, by difference"
+                 ).value
+               }
+             </p>
+             <p>
+               Trans Fat
+               {
+                 food.foodNutrients.find(
+                   (nutrient: any) =>
+                     nutrient.nutrientName === "Carbohydrate, by difference"
+                 ).value
+               }
+             </p>
            </div>
            <div className="micro-nutrients">
              <p>
@@ -200,7 +227,7 @@ function App() {
            </p>
 
            <div className="barcode">
-             <Barcode value={food.fdcId} format="CODE128" />
+             <Barcode value={String(food.fdcId)} format="CODE128" />
            </div>
          </div>
        )}

@@ -76,7 +76,8 @@
 .flex-between {
   display: flex;
   justify-content: space-between;
-}
+  align-items: center;
+  }
 
 .footnote {
   line-height: 1.2;
@@ -131,4 +132,34 @@ overflow-y: scroll;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+
+.calories .total {
+  font-size: 2.4rem;
+  letter-spacing: -2px;
+}
+
+
+.brand {
+        border-bottom: 4px solid black;
+      border-top: 1px solid black;
+      /* padding: .4em 0; */
+}
+.brand p:first-child {
+  font-weight: 800;
+}
+
+@media (max-width: 800px) {
+  .flex {
+    flex-direction: column;
+  }  
+}
+
+.nutrient-row {
+  display: flex;
+}
+
+a {
+  color: inherit;
 }
